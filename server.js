@@ -340,7 +340,7 @@ app.post('/api/admin/withdrawals/:id/status', requireAdmin, async (req, res) => 
 
     // Send Telegram Notification to user
     const w = result.withdrawal;
-    await notifyWithdrawalUpdate(w.user_id, w.uc_amount, w.pubg_id, status, note);
+    await notifyWithdrawalUpdate(w.user_id, w.uc_amount, w.pubg_id, status, note, w.pubg_name);
 
     res.json({ success: true, withdrawal: w });
 });

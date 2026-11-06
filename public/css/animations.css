@@ -109,16 +109,24 @@
 
 /* Tabs transition */
 .tab-pane {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-    transition: opacity 0.22s ease-out, transform 0.22s ease-out;
     display: none;
+    width: 100%;
 }
 
 .tab-pane.active {
     display: block;
-    opacity: 1;
-    transform: translateY(0) scale(1);
+    animation: tabEntrance 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tabEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Interactive card glow on hover/active */

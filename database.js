@@ -168,12 +168,7 @@ function initDb() {
         );
     }
 
-    // Insert default mandatory channels if empty
-    const channelCount = db.prepare('SELECT COUNT(*) as count FROM mandatory_channels').get().count;
-    if (channelCount === 0) {
-        const insertChan = db.prepare('INSERT INTO mandatory_channels (title, channel_username, invite_link, created_at) VALUES (?, ?, ?, ?)');
-        insertChan.run('ALTRO UC Rasmiy Kanal', '@altrouc_channel', 'https://t.me', Date.now());
-    }
+    // Mandatory channels table is empty by default; admin adds their own channels from Admin Panel.
 
     // Insert default settings
     const setSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
@@ -276,13 +271,9 @@ const users = {
         const elapsedSec = Math.max(0, Math.floor((now - (user.last_energy_update || now)) / 1000));
         let energy = Math.min(maxEnergy, user.current_energy + elapsedSec * rechargePerSec);
 
-        const energyPerTap = 1;
-        const earnPerTap = user.multitap_level; // level 1: 1 altro, level 2: 2 altro, etc.
-
-        // Allow max taps up to current available energy
-        const validTaps = Math.max(0, Math.min(tapsCount, Math.floor(energy / energyPerTap)));
-        const energyUsed = validTaps * energyPerTap;
-        const altroEarned = validTaps * earnPerTap;
+        // Exactly deduct from energy whatever is earned (1:1 match)
+        const energyUsed = Math.max(0, Math.min(tapsCount, energy));
+        const altroEarned = energyUsed;
 
         energy = Math.max(0, energy - energyUsed);
 
@@ -293,14 +284,14 @@ const users = {
                 current_energy = ?,
                 last_energy_update = ?
             WHERE telegram_id = ?
-        `).run(altroEarned, validTaps, energy, now, telegram_id);
+        `).run(altroEarned, energyUsed, energy, now, telegram_id);
 
         const updated = db.prepare('SELECT * FROM users WHERE telegram_id = ?').get(telegram_id);
         return {
             altro_balance: updated.altro_balance,
             current_energy: updated.current_energy,
             max_energy: maxEnergy,
-            taps_processed: validTaps,
+            taps_processed: energyUsed,
             altro_earned: altroEarned
         };
     },

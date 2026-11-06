@@ -269,7 +269,10 @@ class AdminPanel {
                         <div class="text-xs font-black text-white">${w.first_name || 'Foydalanuvchi'}</div>
                         <div class="text-[10px] text-yellow-400/80 font-mono">ID: ${w.user_id}</div>
                     </td>
-                    <td class="p-3.5 font-mono font-black text-yellow-300 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-400/30 inline-block">${w.pubg_id}</td>
+                    <td class="p-3.5">
+                        <div class="font-mono font-black text-yellow-300 text-xs">${w.pubg_id}</div>
+                        <div class="text-[11px] text-slate-300 font-bold">${w.pubg_name || 'Ism kiritilmagan'}</div>
+                    </td>
                     <td class="p-3.5 font-black text-white text-sm font-mono">${w.uc_amount} UC</td>
                     <td class="p-3.5 text-xs text-slate-400 font-medium">${date}</td>
                     <td class="p-3.5">${statusBadge}</td>

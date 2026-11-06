@@ -13,7 +13,7 @@ if (BOT_TOKEN && BOT_TOKEN !== 'YOUR_TELEGRAM_BOT_TOKEN_HERE') {
     console.warn('⚠️ BOT_TOKEN sozlanmagan! Bot test rejimida ishlaydi yoki .env faylida BOT_TOKEN kiriting.');
 }
 
-// Check if user is member of all mandatory channels
+// Check if user is member of all mandatory channels (100% strict check)
 async function checkUserSubscription(ctx, userId) {
     const isMandatoryActive = settings.get('channel_mandatory_active') !== '0';
     if (!isMandatoryActive) return { allSubscribed: true, missing: [] };
@@ -25,13 +25,24 @@ async function checkUserSubscription(ctx, userId) {
     for (const ch of activeChannels) {
         try {
             const member = await ctx.telegram.getChatMember(ch.channel_username, userId);
-            if (['left', 'kicked'].includes(member.status)) {
+            const isSubscribed = member && (
+                ['creator', 'administrator', 'member'].includes(member.status) ||
+                (member.status === 'restricted' && member.is_member)
+            );
+
+            if (!isSubscribed) {
                 missing.push(ch);
             }
         } catch (err) {
-            // If bot is not admin in channel, or channel username is invalid
-            console.warn(`[Channel Check Warning] Kanalni tekshirib bo'lmadi (${ch.channel_username}):`, err.message);
-            // We do not block users if the bot itself hasn't been added to the channel yet
+            const msg = err.message || '';
+            // If user not found in chat, they have definitely NOT subscribed
+            if (msg.includes('user not found') || msg.includes('PARTICIPANT_ID_INVALID')) {
+                missing.push(ch);
+            } else if (msg.includes('chat not found') || msg.includes('bot is not a member') || msg.includes('not enough rights')) {
+                console.warn(`[Kanal tekshirish ogohlantirishi] Bot ${ch.channel_username} kanaliga admin qilinmagan:`, msg);
+            } else {
+                missing.push(ch);
+            }
         }
     }
 
@@ -306,15 +317,17 @@ function sendWelcomeMessage(ctx) {
 }
 
 // Function to send withdrawal notifications to user
-async function notifyWithdrawalUpdate(userId, ucAmount, pubgId, status, note = '') {
+async function notifyWithdrawalUpdate(userId, ucAmount, pubgId, status, note = '', pubgName = '') {
     if (!bot) return;
     try {
         if (status === 'approved') {
             await bot.telegram.sendMessage(
                 userId,
                 `🎉 **TABRIKLAYMIZ! UC YECHIB OLINDI!**\n\n` +
-                `✅ Siz so'ragan **${ucAmount} PUBG UC** sizning hisobingizga muvaffaqiyatli o'tkazib berildi!\n` +
-                `🆔 **PUBG ID:** \`${pubgId}\`\n\n` +
+                `✅ Siz so'ragan **${ucAmount} PUBG UC** hisobingizga muvaffaqiyatli o'tkazib berildi!\n` +
+                `🆔 **PUBG ID:** \`${pubgId}\`\n` +
+                (pubgName ? `👤 **PUBG Ismi:** ${pubgName}\n` : '') +
+                `💎 **Miqdori:** **${ucAmount} PUBG UC**\n\n` +
                 `Do'stlaringizga ham ulashing va yanada ko'proq UC yig'ing! 🚀`,
                 { parse_mode: 'Markdown' }
             );
@@ -322,7 +335,7 @@ async function notifyWithdrawalUpdate(userId, ucAmount, pubgId, status, note = '
             await bot.telegram.sendMessage(
                 userId,
                 `❌ **UC YECHISH ARIZASI RAD ETILDI**\n\n` +
-                `Arizangiz: **${ucAmount} UC** (PUBG ID: \`${pubgId}\`)\n` +
+                `Arizangiz: **${ucAmount} UC** (PUBG ID: \`${pubgId}\`${pubgName ? `, Ism: ${pubgName}` : ''})\n` +
                 (note ? `💬 **Sabab:** ${note}\n\n` : '\n') +
                 `🔄 Altro UC balansingiz qaytarildi. Iltimos PUBG ID to'g'riligini tekshiring va qayta ariza bering.\n\n` +
                 `🆘 Savollar bo'lsa 24/7 adminga yozing: @ALTRO_ADMN`,
