@@ -1,0 +1,146 @@
+/* 1000$ AAA Animations & Entrance Visual Effects */
+
+/* App Entrance Glow Surge */
+@keyframes entrance-surge {
+    0% {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+        filter: brightness(0.6);
+    }
+    50% {
+        filter: brightness(1.25);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: brightness(1);
+    }
+}
+
+.app-entrance-surge {
+    animation: entrance-surge 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Light laser sweep across card on entrance */
+@keyframes laser-sweep {
+    0% {
+        left: -150%;
+        opacity: 0;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        left: 200%;
+        opacity: 0;
+    }
+}
+
+.laser-glow-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.laser-glow-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), rgba(255, 230, 0, 0.6), transparent);
+    transform: skewX(-25deg);
+    animation: laser-sweep 2.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+/* Tap Ripple Effect directly at touch coordinates */
+.tap-ripple {
+    position: fixed;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 20px #ffe600, inset 0 0 15px #f59e0b;
+    pointer-events: none;
+    z-index: 999;
+    animation: ripple-grow 0.5s ease-out forwards;
+}
+
+@keyframes ripple-grow {
+    0% {
+        width: 10px;
+        height: 10px;
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        width: 140px;
+        height: 140px;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2.2);
+    }
+}
+
+/* Gold Shimmer Sweep across buttons & badges */
+@keyframes gold-shimmer-sweep {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer-badge {
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(255, 230, 0, 0.6) 50%, rgba(245, 158, 11, 0.15) 100%);
+    background-size: 200% 100%;
+    animation: gold-shimmer-sweep 2.2s infinite linear;
+}
+
+/* Shake on out-of-energy */
+@keyframes shake-h {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+.animate-shake {
+    animation: shake-h 0.35s ease-in-out;
+}
+
+/* Tabs transition */
+.tab-pane {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 0.22s ease-out, transform 0.22s ease-out;
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Interactive card glow on hover/active */
+.interactive-card {
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, border-color 0.2s;
+}
+
+.interactive-card:active {
+    transform: scale(0.96);
+}
+
+/* Glowing golden dot */
+.status-dot-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ffe600;
+    box-shadow: 0 0 12px #ffe600;
+    animation: dot-pulse 1.6s infinite;
+}
+
+@keyframes dot-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.5; }
+}

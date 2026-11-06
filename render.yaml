@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: altro-sale-uc-bot
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: BOT_USERNAME
+        value: altrosaleucbot
+      - key: OWNER_ID
+        value: "7081580477"
+      - key: ADMIN_IDS
+        value: "7081580477,8422157752"
+      - key: SUPPORT_USERNAME
+        value: ALTRO_ADMN
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBAPP_URL
+        sync: false

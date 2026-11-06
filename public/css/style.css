@@ -1,0 +1,444 @@
+:root {
+    --bg-pure-black: #000000;
+    --bg-dark: #05070a;
+    --bg-card: rgba(10, 14, 22, 0.92);
+    --gold-bright: #ffe600;
+    --gold-electric: #fbbf24;
+    --gold-deep: #f59e0b;
+    --gold-pale: #fef08a;
+    --text-white: #ffffff;
+    --text-pure-white: #ffffff;
+    --text-muted: #94a3b8;
+    --border-gold: rgba(251, 191, 36, 0.5);
+    --border-gold-glow: rgba(255, 230, 0, 0.85);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #030508;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(255, 230, 0, 0.18) 0%, transparent 55%),
+        radial-gradient(circle at 100% 30%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 0% 70%, rgba(255, 230, 0, 0.08) 0%, transparent 45%),
+        linear-gradient(180deg, #020305 0%, #07090f 50%, #000000 100%);
+    color: #ffffff;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 95px;
+    position: relative;
+}
+
+/* Background animated ambient glow particles */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 10%;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 230, 0, 0.16) 0%, transparent 70%);
+    filter: blur(70px);
+    pointer-events: none;
+    z-index: 0;
+    animation: float-ambient 12s infinite ease-in-out alternate;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    bottom: 10%;
+    right: 5%;
+    width: 380px;
+    height: 380px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+    z-index: 0;
+    animation: float-ambient-reverse 15s infinite ease-in-out alternate;
+}
+
+@keyframes float-ambient {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(70px, 50px) scale(1.15); }
+}
+
+@keyframes float-ambient-reverse {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-50px, -60px) scale(1.2); }
+}
+
+/* ==================== CHOTKI QORA-SARIQ-OQ GLASS PANEL ==================== */
+.glass-panel {
+    background: linear-gradient(145deg, rgba(14, 18, 28, 0.95) 0%, rgba(6, 8, 13, 0.98) 100%);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1.5px solid var(--border-gold);
+    border-radius: 24px;
+    box-shadow: 
+        0 12px 35px rgba(0, 0, 0, 0.85),
+        0 0 15px rgba(251, 191, 36, 0.12),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-panel:hover {
+    border-color: var(--border-gold-glow);
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.9),
+        0 0 25px rgba(255, 230, 0, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Typography Contrast: Crisp White & Vivid Gold */
+.text-gold-shine {
+    background: linear-gradient(135deg, #ffffff 0%, #fff066 30%, #fbbf24 70%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(255, 230, 0, 0.6));
+}
+
+.text-pure-white {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.text-electric-yellow {
+    color: #ffe600 !important;
+    text-shadow: 0 0 10px rgba(255, 230, 0, 0.5);
+}
+
+/* ==================== 1000$ LUXURY COIN MEDALLION ==================== */
+.coin-medallion-container {
+    position: relative;
+    width: 285px;
+    height: 285px;
+    margin: 16px auto 22px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+    cursor: pointer;
+    touch-action: manipulation;
+    z-index: 10;
+}
+
+/* Outer Spinning Holographic Energy Rings */
+.coin-energy-ring {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ffe600, #fbbf24, #ffffff, transparent 40%, transparent 65%, #ffe600);
+    animation: spin-clockwise 8s linear infinite;
+    filter: blur(6px);
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.coin-dotted-ring {
+    position: absolute;
+    width: 286px;
+    height: 286px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 230, 0, 0.7);
+    animation: spin-counter-clockwise 16s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.coin-glow-aura {
+    position: absolute;
+    width: 265px;
+    height: 265px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 230, 0, 0.5) 0%, rgba(245, 158, 11, 0.25) 50%, transparent 75%);
+    filter: blur(25px);
+    animation: pulse-aura 2.8s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* The Core Circular Medallion Frame */
+.coin-circle {
+    position: relative;
+    width: 255px;
+    height: 255px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #29200a 0%, #151105 45%, #050503 100%);
+    border: 5px solid #ffe600;
+    box-shadow: 
+        0 0 40px rgba(255, 230, 0, 0.55),
+        inset 0 0 30px rgba(0, 0, 0, 0.95),
+        inset 0 0 18px rgba(255, 230, 0, 0.65),
+        0 20px 45px rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform;
+    z-index: 5;
+}
+
+/* Inner gold engraved ring inside medallion */
+.coin-circle::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: inset 0 0 12px rgba(255, 230, 0, 0.4);
+    pointer-events: none;
+}
+
+/* ==================== RASMGA BORDER RADIUS & OLTIN ROMLAR ==================== */
+.coin-image-inner {
+    width: 175px;
+    height: 175px;
+    object-fit: cover;
+    border-radius: 36px !important; /* Elegant rounded border radius as requested! */
+    border: 3.5px solid #ffe600 !important;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.95),
+        0 0 25px rgba(255, 230, 0, 0.6),
+        inset 0 0 15px rgba(0, 0, 0, 0.5) !important;
+    z-index: 6;
+    pointer-events: none;
+    transition: transform 0.08s ease;
+}
+
+.coin-circle:active .coin-image-inner, .coin-circle.tapped .coin-image-inner {
+    transform: scale(0.94);
+}
+
+.coin-circle:active, .coin-circle.tapped {
+    transform: scale(0.92) translateY(5px);
+}
+
+@keyframes spin-clockwise {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes spin-counter-clockwise {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+}
+
+@keyframes pulse-aura {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* ==================== FLOATING NUMBERS ON TAP ==================== */
+.tap-particle {
+    position: fixed;
+    font-size: 34px;
+    font-weight: 900;
+    color: #fff;
+    background: linear-gradient(180deg, #ffffff 0%, #fff799 30%, #ffe600 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 14px rgba(255, 230, 0, 0.95)) drop-shadow(0 3px 6px rgba(0,0,0,0.95));
+    pointer-events: none;
+    z-index: 9999;
+    animation: float-tap-up 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    user-select: none;
+}
+
+@keyframes float-tap-up {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 10px) scale(0.6);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -20px) scale(1.35);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -105px) scale(1.05);
+    }
+}
+
+/* ==================== ELECTRIC ENERGY BAR ==================== */
+.energy-progress-container {
+    background: rgba(4, 6, 10, 0.95);
+    border: 1.5px solid rgba(255, 230, 0, 0.5);
+    border-radius: 999px;
+    height: 18px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.energy-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #d97706 0%, #f59e0b 35%, #ffe600 80%, #ffffff 100%);
+    border-radius: 999px;
+    transition: width 0.15s ease-out;
+    box-shadow: 
+        0 0 18px rgba(255, 230, 0, 0.9),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    position: relative;
+}
+
+.energy-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+    animation: energy-stripe 1.4s infinite linear;
+    border-radius: 999px;
+}
+
+@keyframes energy-stripe {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ==================== DUMOLOQ RASM & AVATARLAR ==================== */
+.circle-avatar {
+    border-radius: 50% !important;
+    border: 2px solid #ffe600;
+    box-shadow: 0 0 14px rgba(255, 230, 0, 0.5);
+    object-fit: cover;
+}
+
+.circle-badge {
+    border-radius: 50% !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 230, 0, 0.7);
+    box-shadow: 0 0 14px rgba(255, 230, 0, 0.4);
+}
+
+/* ==================== BOTTOM FLOATING NAV BAR ==================== */
+.bottom-nav {
+    position: fixed;
+    bottom: 12px;
+    left: 14px;
+    right: 14px;
+    height: 72px;
+    background: rgba(6, 9, 15, 0.96);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1.5px solid rgba(255, 230, 0, 0.45);
+    border-radius: 26px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 100;
+    max-width: 440px;
+    margin: 0 auto;
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.9),
+        0 0 25px rgba(255, 230, 0, 0.2),
+        inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 6px 10px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 3px;
+    transition: transform 0.25s, color 0.25s;
+}
+
+.nav-item.active {
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(255, 230, 0, 0.25) 0%, rgba(255, 230, 0, 0.08) 100%);
+    border: 1px solid rgba(255, 230, 0, 0.6);
+    box-shadow: 0 0 18px rgba(255, 230, 0, 0.35);
+}
+
+.nav-item.active i {
+    transform: translateY(-2px) scale(1.15);
+    color: #ffe600;
+    filter: drop-shadow(0 0 12px rgba(255, 230, 0, 0.9));
+}
+
+/* ==================== CHOTKI VIP GOLD BUTTON ==================== */
+.btn-gold-vip {
+    background: linear-gradient(135deg, #ffffff 0%, #fff799 15%, #ffe600 45%, #f59e0b 80%, #b45309 100%);
+    color: #000000 !important;
+    font-weight: 900;
+    border: 1.5px solid #ffffff;
+    box-shadow: 
+        0 6px 22px rgba(255, 230, 0, 0.45),
+        inset 0 1px 2px rgba(255, 255, 255, 0.9);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-gold-vip:hover {
+    box-shadow: 
+        0 8px 30px rgba(255, 230, 0, 0.65),
+        0 0 20px rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.btn-gold-vip:active {
+    transform: translateY(2px) scale(0.97);
+    box-shadow: 0 2px 12px rgba(255, 230, 0, 0.4);
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.modal-content {
+    background: linear-gradient(180deg, #121824 0%, #05070a 100%);
+    border: 1.5px solid var(--border-gold-glow);
+    border-radius: 28px;
+    width: 100%;
+    max-width: 410px;
+    box-shadow: 
+        0 25px 65px rgba(0, 0, 0, 0.95),
+        0 0 35px rgba(255, 230, 0, 0.35),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
+    overflow: hidden;
+    animation: modal-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}

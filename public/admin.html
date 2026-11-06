@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTRO SALE UC BOT — Boshqaruv Paneli (Admin PRO)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+    <!-- Top Admin Header -->
+    <header class="border-b border-amber-500/30 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[2px] shadow-lg shadow-amber-500/30">
+                    <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-yellow-300 font-black text-lg">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-sm font-black text-white flex items-center gap-2">
+                        <span class="tracking-wide">ALTRO SALE UC BOT ADMIN</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black uppercase tracking-wider shadow-sm">VIP PRO</span>
+                    </h1>
+                    <div id="current-admin-id" class="text-[11px] text-yellow-300 font-mono">Admin ID: ...</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="/" class="btn-gold-vip px-4 py-2 rounded-full text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad"></i>
+                    <span>O'yinga Qaytish</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 py-6">
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-800 pb-3">
+            <button id="nav-btn-dashboard" onclick="window.adminPanel.switchTab('dashboard')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-amber-400/50 bg-amber-500/20 text-yellow-300 flex items-center gap-2 transition-all shadow-sm">
+                <i class="fa-solid fa-chart-pie"></i> Statistika
+            </button>
+            <button id="nav-btn-packages" onclick="window.adminPanel.switchTab('packages')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-gem text-yellow-400"></i> UC Paketlari
+            </button>
+            <button id="nav-btn-withdrawals" onclick="window.adminPanel.switchTab('withdrawals')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> UC Arizalari
+            </button>
+            <button id="nav-btn-users" onclick="window.adminPanel.switchTab('users')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-users text-sky-400"></i> Mijozlar & Balans
+            </button>
+            <button id="nav-btn-channels" onclick="window.adminPanel.switchTab('channels')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-bullhorn text-amber-400"></i> Majburiy Kanallar
+            </button>
+            <button id="nav-btn-tasks" onclick="window.adminPanel.switchTab('tasks')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-gift text-yellow-400"></i> Shartlar / Vazifalar
+            </button>
+            <button id="nav-btn-admins" onclick="window.adminPanel.switchTab('admins')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-user-shield text-purple-400"></i> Adminlar
+            </button>
+            <button id="nav-btn-broadcast" onclick="window.adminPanel.switchTab('broadcast')" class="admin-nav-item px-4 py-2 rounded-2xl text-xs font-black border border-slate-800 text-slate-300 hover:text-white flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-paper-plane text-yellow-400"></i> Xabar Yuborish
+            </button>
+        </div>
+
+        <!-- ==================== PANE 1: STATS ==================== -->
+        <div id="pane-dashboard" class="admin-tab-pane">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="glass-panel p-5 border-amber-400/30">
+                    <div class="text-[11px] text-yellow-400 font-bold uppercase tracking-wider mb-1">Jami Foydalanuvchilar</div>
+                    <div id="stat-total-users" class="text-3xl font-black text-white font-mono">0</div>
+                    <div class="text-[11px] text-emerald-400 mt-2 font-bold"><i class="fa-solid fa-bolt"></i> 30.000+ Sig'imli Tezkor Baza</div>
+                </div>
+
+                <div class="glass-panel p-5 border-amber-400/30">
+                    <div class="text-[11px] text-yellow-400 font-bold uppercase tracking-wider mb-1">Yig'ilgan Altro UC</div>
+                    <div id="stat-total-altro" class="text-3xl font-black text-gold-shine font-mono">0</div>
+                    <div class="text-[11px] text-slate-400 mt-2 font-medium">Barcha o'yinchilar balansi</div>
+                </div>
+
+                <div class="glass-panel p-5 border-amber-400/30">
+                    <div class="text-[11px] text-yellow-400 font-bold uppercase tracking-wider mb-1">Yechilgan PUBG UC</div>
+                    <div id="stat-total-uc" class="text-3xl font-black text-yellow-300 font-mono">0 UC</div>
+                    <div class="text-[11px] text-emerald-400 mt-2 font-medium">Muvaffaqiyatli tushirib berilgan</div>
+                </div>
+
+                <div class="glass-panel p-5 border-amber-400/30">
+                    <div class="text-[11px] text-yellow-400 font-bold uppercase tracking-wider mb-1">Kutilayotgan Arizalar</div>
+                    <div id="stat-pending-withdrawals" class="text-3xl font-black text-rose-400 font-mono">0</div>
+                    <div class="text-[11px] text-rose-400 mt-2 font-medium">Ko'rib chiqilishi kutilmoqda</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 2: UC PACKAGES ==================== -->
+        <div id="pane-packages" class="admin-tab-pane hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add Package Form -->
+                <div class="glass-panel p-5 border-amber-400/40 h-fit">
+                    <h3 class="text-sm font-black text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-yellow-400"></i>
+                        <span>Yangi Paket Qo'shish</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Kerakli Altro UC miqdori: *</label>
+                            <input id="pkg-altro-cost" type="number" placeholder="Masalan: 16000" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Beriladigan PUBG UC miqdori: *</label>
+                            <input id="pkg-uc-amount" type="number" placeholder="Masalan: 60" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Paket Nomi (Ko'rinishi):</label>
+                            <input id="pkg-title" type="text" placeholder="Masalan: 60 UC Paketi" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Belgisi (Badge):</label>
+                            <input id="pkg-badge" type="text" placeholder="Masalan: Mashhur / VIP" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <button onclick="window.adminPanel.addPackage()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                            Saqlash va Qo'shish
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Packages Table -->
+                <div class="lg:col-span-2 glass-panel p-5 border-slate-800 overflow-x-auto">
+                    <h3 class="text-sm font-black text-white mb-3">Mavjud UC Paketlari (Tahrirlash va O'chirish)</h3>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-yellow-400 font-bold">
+                                <th class="p-3">PUBG UC</th>
+                                <th class="p-3">Altro Narxi</th>
+                                <th class="p-3">Nomi</th>
+                                <th class="p-3">Belgisi</th>
+                                <th class="p-3 text-right">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packages-admin-list">
+                            <!-- JS loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 3: WITHDRAWAL REQUESTS ==================== -->
+        <div id="pane-withdrawals" class="admin-tab-pane hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-black text-white">PUBG UC Yechish Arizalari</h3>
+                <div class="flex gap-2">
+                    <button onclick="window.adminPanel.loadWithdrawals('pending')" class="px-3.5 py-1.5 rounded-full bg-amber-500/20 text-yellow-300 text-xs font-black border border-amber-400/40">
+                        Kutilayotganlar
+                    </button>
+                    <button onclick="window.adminPanel.loadWithdrawals()" class="px-3.5 py-1.5 rounded-full bg-slate-900 text-slate-300 text-xs font-bold border border-slate-700">
+                        Barchasi
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 border-slate-800 overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-yellow-400 font-bold">
+                            <th class="p-3">#</th>
+                            <th class="p-3">Foydalanuvchi</th>
+                            <th class="p-3">PUBG ID (UID)</th>
+                            <th class="p-3">So'ralgan UC</th>
+                            <th class="p-3">Sana</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-right">Harakatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawals-admin-list">
+                        <!-- JS loaded -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 4: USERS & BALANCE ==================== -->
+        <div id="pane-users" class="admin-tab-pane hidden">
+            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between mb-4">
+                <h3 class="text-sm font-black text-white">Mijozlar va Ularning Balansi (30,000+ DB)</h3>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <input id="user-search-input" type="text" placeholder="ID, Ism, Username yoki PUBG ID..." class="bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2 text-xs text-white w-full sm:w-64">
+                    <button onclick="window.adminPanel.loadUsers()" class="btn-gold-vip px-4 py-2 rounded-2xl text-xs font-black">
+                        Qidirish
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 border-slate-800 overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-yellow-400 font-bold">
+                            <th class="p-3">Telegram ID</th>
+                            <th class="p-3">Foydalanuvchi</th>
+                            <th class="p-3">PUBG ID</th>
+                            <th class="p-3">Altro Balans</th>
+                            <th class="p-3">Jami Bosilgan</th>
+                            <th class="p-3 text-right">Amal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-admin-list">
+                        <!-- JS loaded -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 5: MANDATORY CHANNELS ==================== -->
+        <div id="pane-channels" class="admin-tab-pane hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add Channel -->
+                <div class="glass-panel p-5 border-amber-400/40 h-fit">
+                    <h3 class="text-sm font-black text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-bullhorn text-yellow-400"></i>
+                        <span>Majburiy Kanal Qo'shish</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Kanal Nomi: *</label>
+                            <input id="chan-title" type="text" placeholder="Masalan: ALTRO UC Rasmiy" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Username / ID: *</label>
+                            <input id="chan-username" type="text" placeholder="Masalan: @altrouc_channel" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Taklif Havolasi: *</label>
+                            <input id="chan-link" type="text" placeholder="https://t.me/altrouc_channel" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <button onclick="window.adminPanel.addChannel()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                            Kanalni Saqlash
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Channels -->
+                <div class="lg:col-span-2 glass-panel p-5 border-slate-800 overflow-x-auto">
+                    <h3 class="text-sm font-black text-white mb-3">Faol Majburiy Kanallar (Tahrirlash va O'chirish)</h3>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-yellow-400 font-bold">
+                                <th class="p-3">Sarlavha</th>
+                                <th class="p-3">Username</th>
+                                <th class="p-3">Havola</th>
+                                <th class="p-3 text-right">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="channels-admin-list">
+                            <!-- JS loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 6: TASKS ==================== -->
+        <div id="pane-tasks" class="admin-tab-pane hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add Task -->
+                <div class="glass-panel p-5 border-amber-400/40 h-fit">
+                    <h3 class="text-sm font-black text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-gift text-yellow-400"></i>
+                        <span>Yangi Vazifa Qo'shish</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Vazifa Sarlavhasi: *</label>
+                            <input id="task-title" type="text" placeholder="YouTube kanalga obuna bo'lish" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Turi:</label>
+                            <select id="task-type" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                                <option value="youtube">YouTube Video / Sahifa</option>
+                                <option value="custom">Boshqa Havola</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Beriladigan Mukofot (Altro UC): *</label>
+                            <input id="task-reward" type="number" value="200" placeholder="200" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Havola: *</label>
+                            <input id="task-link" type="text" placeholder="https://youtube.com/..." class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <button onclick="window.adminPanel.addTask()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                            Vazifani Saqlash
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Tasks -->
+                <div class="lg:col-span-2 glass-panel p-5 border-slate-800 overflow-x-auto">
+                    <h3 class="text-sm font-black text-white mb-3">Mavjud Shartlar va Vazifalar (Tahrirlash va O'chirish)</h3>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-yellow-400 font-bold">
+                                <th class="p-3">Sarlavha</th>
+                                <th class="p-3">Turi</th>
+                                <th class="p-3">Mukofot</th>
+                                <th class="p-3">Havola</th>
+                                <th class="p-3 text-right">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-admin-list">
+                            <!-- JS loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 7: ADMINS ==================== -->
+        <div id="pane-admins" class="admin-tab-pane hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add Admin -->
+                <div class="glass-panel p-5 border-amber-400/40 h-fit">
+                    <h3 class="text-sm font-black text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-yellow-400"></i>
+                        <span>Yangi Admin Qo'shish</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Telegram ID raqami: *</label>
+                            <input id="new-admin-id" type="number" placeholder="Masalan: 123456789" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">Izoh / Ism:</label>
+                            <input id="new-admin-note" type="text" placeholder="Asosiy admin yordamchisi" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                        </div>
+                        <button onclick="window.adminPanel.addAdmin()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                            Adminni Qo'shish
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Existing Admins -->
+                <div class="lg:col-span-2 glass-panel p-5 border-slate-800 overflow-x-auto">
+                    <h3 class="text-sm font-black text-white mb-3">Tizimdagi Adminlar</h3>
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-yellow-400 font-bold">
+                                <th class="p-3">Telegram ID</th>
+                                <th class="p-3">Roli</th>
+                                <th class="p-3">Izoh</th>
+                                <th class="p-3 text-right">O'chirish</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admins-list">
+                            <!-- JS loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== PANE 8: BROADCAST ==================== -->
+        <div id="pane-broadcast" class="admin-tab-pane hidden">
+            <div class="max-w-xl mx-auto glass-panel p-6 border-amber-400/40">
+                <h3 class="text-sm font-black text-white mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-yellow-400"></i>
+                    <span>Barcha O'yinchilarga Xabar Yuborish</span>
+                </h3>
+                <p class="text-xs text-slate-400 mb-4">Bot foydalanuvchilarining barchasiga birdaniga bildirishnoma yoki e'lon yuborish.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Rasm URL (Ixtiyoriy):</label>
+                        <input id="broadcast-photo" type="text" placeholder="https://example.com/image.jpg" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1">Xabar Matni (Markdown formatida): *</label>
+                        <textarea id="broadcast-text" rows="5" placeholder="🔥 Diqqat! Yangi aksiyalar boshlandi..." class="w-full bg-slate-950 border border-slate-700 rounded-2xl p-3.5 text-xs text-white focus:outline-none focus:border-amber-400"></textarea>
+                    </div>
+                    <button id="btn-send-broadcast" onclick="window.adminPanel.sendBroadcast()" class="btn-gold-vip w-full py-3.5 rounded-2xl text-xs font-black flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Xabarni Barchaga Yuborish</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ==================== MODAL: EDIT PACKAGE ==================== -->
+    <div id="edit-package-modal" class="modal-overlay hidden">
+        <div class="modal-content p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-yellow-400"></i>
+                    <span>UC Paketini Tahrirlash</span>
+                </h3>
+                <button onclick="window.adminPanel.closeEditPackageModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Altro Narxi: *</label>
+                    <input id="edit-pkg-altro" type="number" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Beriladigan PUBG UC: *</label>
+                    <input id="edit-pkg-uc" type="number" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Paket Nomi:</label>
+                    <input id="edit-pkg-title" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Belgisi (Badge):</label>
+                    <input id="edit-pkg-badge" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+            </div>
+            <button onclick="window.adminPanel.savePackageEdit()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                O'zgarishlarni Saqlash
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: EDIT CHANNEL ==================== -->
+    <div id="edit-channel-modal" class="modal-overlay hidden">
+        <div class="modal-content p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-yellow-400"></i>
+                    <span>Majburiy Kanalni Tahrirlash</span>
+                </h3>
+                <button onclick="window.adminPanel.closeEditChannelModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Kanal Nomi: *</label>
+                    <input id="edit-chan-title" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Username / ID: *</label>
+                    <input id="edit-chan-username" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Taklif Havolasi: *</label>
+                    <input id="edit-chan-link" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+            </div>
+            <button onclick="window.adminPanel.saveChannelEdit()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                O'zgarishlarni Saqlash
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: EDIT TASK ==================== -->
+    <div id="edit-task-modal" class="modal-overlay hidden">
+        <div class="modal-content p-5">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-yellow-400"></i>
+                    <span>Vazifani Tahrirlash</span>
+                </h3>
+                <button onclick="window.adminPanel.closeEditTaskModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Vazifa Sarlavhasi: *</label>
+                    <input id="edit-task-title" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Mukofot (Altro UC): *</label>
+                    <input id="edit-task-reward" type="number" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">Havola: *</label>
+                    <input id="edit-task-link" type="text" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+            </div>
+            <button onclick="window.adminPanel.saveTaskEdit()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                O'zgarishlarni Saqlash
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/admin.js"></script>
+</body>
+</html>

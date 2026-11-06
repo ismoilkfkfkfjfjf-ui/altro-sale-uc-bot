@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ALTRO SALE UC BOT — PUBG UC Tap-to-Earn</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Outfit & Orbitron for luxury gaming style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="antialiased select-none">
+
+    <!-- Container wrapper with max-width for mobile app layout -->
+    <div class="max-w-md mx-auto min-h-screen flex flex-col justify-between px-3.5 pt-3 pb-24 relative z-10 app-entrance-surge">
+
+        <!-- Top Header Bar (VIP Status) -->
+        <header class="flex items-center justify-between glass-panel px-4 py-2.5 mb-3 border-amber-500/40">
+            <div class="flex items-center gap-3">
+                <!-- Circular VIP Logo -->
+                <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-200 p-[2px] shadow-lg shadow-amber-500/30">
+                    <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-yellow-300 font-black text-base overflow-hidden">
+                        <img src="images/uc_coin.png" class="w-7 h-7 object-contain drop-shadow" alt="UC">
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs font-black text-white flex items-center gap-2">
+                        <span class="tracking-wide">ALTRO SALE UC BOT</span>
+                        <span id="league-badge" class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-sm shadow-amber-500/40">BRONZE</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold">
+                        <span class="status-dot-pulse"></span>
+                        <span class="text-yellow-400/90 font-bold">PUBG Mobile Official Season 1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Support 24/7 quick link -->
+                <a href="https://t.me/ALTRO_ADMN" target="_blank" title="24/7 Qo'llab-quvvatlash" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[11px] font-black flex items-center gap-1 hover:bg-emerald-500/30 transition-all">
+                    <i class="fa-solid fa-headset text-xs"></i>
+                    <span>24/7</span>
+                </a>
+
+                <!-- Admin quick link (visible only to admins) -->
+                <a id="admin-quick-btn" href="/admin.html" class="hidden px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-crown text-[10px]"></i>
+                    <span>Admin</span>
+                </a>
+
+                <!-- Sound toggle -->
+                <button id="sound-toggle-btn" class="w-9 h-9 rounded-full bg-slate-900 border border-amber-400/30 flex items-center justify-center text-sm transition-all hover:border-amber-400 shadow-sm">
+                    <i class="fa-solid fa-volume-high text-yellow-400"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- ==================== TAB 1: TAP / O'YIN ==================== -->
+        <main id="tab-tap" class="tab-pane active flex-1 flex flex-col justify-between">
+            
+            <!-- Balance Card -->
+            <div class="text-center my-1.5">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 mb-2 shadow-inner">
+                    <div class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></div>
+                    <span class="text-[11px] font-black uppercase tracking-widest text-yellow-300">UMUMIY HISOB</span>
+                </div>
+
+                <div class="flex items-center justify-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1.5px] flex items-center justify-center shadow-lg shadow-amber-500/40">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                            <img src="images/uc_coin.png" class="w-5 h-5 object-contain" alt="UC">
+                        </div>
+                    </div>
+                    <span class="user-balance text-5xl font-black text-gold-shine tracking-tight font-mono">0</span>
+                    <span class="text-xs font-black text-yellow-400 tracking-wider bg-yellow-400/10 px-2 py-0.5 rounded-full border border-yellow-400/20">ALTRO</span>
+                </div>
+
+                <div class="text-xs text-slate-400 mt-2 font-medium flex items-center justify-center gap-1.5">
+                    <span class="text-slate-400">Bosish quvvati:</span>
+                    <span id="earn-per-tap" class="px-2 py-0.5 rounded-full bg-amber-500/20 text-yellow-300 font-black border border-amber-400/40 shadow-sm">+1 Altro</span>
+                </div>
+            </div>
+
+            <!-- 1000$ LUXURY CIRCULAR COIN MEDALLION -->
+            <div class="coin-medallion-container" id="coin-container">
+                <div class="coin-energy-ring"></div>
+                <div class="coin-dotted-ring"></div>
+                <div class="coin-glow-aura"></div>
+                
+                <div class="coin-circle" id="coin-circle">
+                    <img id="coin-img" src="images/uc_coin.png" class="coin-image-inner" alt="PUBG UC Medallion" draggable="false">
+                </div>
+            </div>
+
+            <!-- Electric Energy Bar & Quick Actions -->
+            <div class="space-y-3 mt-1">
+                <div id="energy-container" class="glass-panel p-3.5 border-amber-500/30">
+                    <div class="flex items-center justify-between text-xs mb-2 font-black">
+                        <span class="flex items-center gap-1.5 text-yellow-300">
+                            <i class="fa-solid fa-bolt text-yellow-400 text-sm animate-bounce"></i>
+                            <span class="tracking-wide uppercase">Energiya</span>
+                        </span>
+                        <span id="energy-text" class="text-white font-mono text-sm tracking-wider">1000 / 1000</span>
+                    </div>
+                    <div class="energy-progress-container">
+                        <div id="energy-bar" class="energy-progress-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <!-- Quick Buttons: Boost & UC Yechish -->
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="window.app.switchTab('boost')" class="interactive-card glass-panel p-3.5 flex items-center gap-3 border-amber-400/40 hover:border-amber-400 transition-all">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-950 flex items-center justify-center text-lg font-black shadow-md shadow-amber-500/30 flex-shrink-0">
+                            <i class="fa-solid fa-rocket"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-black text-white">Kuchaytirish</div>
+                            <div class="text-[10px] text-yellow-400 font-bold">Tezroq yig'ish</div>
+                        </div>
+                    </button>
+
+                    <button onclick="window.app.switchTab('withdraw')" class="interactive-card glass-panel p-3.5 flex items-center gap-3 border-yellow-400/50 hover:border-yellow-300 transition-all bg-gradient-to-br from-amber-500/10 to-transparent">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-300 to-amber-500 text-slate-950 flex items-center justify-center text-lg font-black shadow-md shadow-yellow-400/40 flex-shrink-0">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-xs font-black text-white">UC Yechish</div>
+                            <div class="text-[10px] text-yellow-300 font-extrabold">PUBG Mobile</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 2: BOOST / KUCHAYTIRISH ==================== -->
+        <main id="tab-boost" class="tab-pane flex-1">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-xl mb-2 shadow-lg shadow-amber-500/40 font-black">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <h2 class="text-xl font-black text-white">Kuchaytirish (Boosts)</h2>
+                <p class="text-xs text-slate-400">Har bir bosishda ko'proq Altro UC ishlang!</p>
+            </div>
+
+            <!-- Free Daily Full Energy Refill -->
+            <div class="glass-panel p-4 mb-3 border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-transparent">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-full bg-yellow-400 text-black flex items-center justify-center text-xl font-black shadow-md shadow-yellow-400/40">
+                            <i class="fa-solid fa-bolt-lightning"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-black text-white">Bepul To'ldirish (Turbo)</div>
+                            <div id="boost-free-count" class="text-xs text-yellow-300 font-bold">3/3 qoldi</div>
+                        </div>
+                    </div>
+                    <button onclick="window.app.upgrade('free_boost')" class="btn-gold-vip px-4 py-2.5 rounded-full text-xs">
+                        Tiklash
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upgrade Items List -->
+            <div class="space-y-3">
+                <!-- Multitap Upgrade -->
+                <div class="glass-panel p-4 flex items-center justify-between border-slate-800 hover:border-amber-400/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-slate-900 text-yellow-400 flex items-center justify-center text-xl border-2 border-amber-400/50 shadow-md shadow-amber-500/20">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-black text-white">Multitap</div>
+                            <div id="boost-multitap-lvl" class="text-xs text-slate-400 font-semibold">Daraja 1</div>
+                            <div class="text-[11px] text-yellow-300 font-bold mt-0.5">Har bosganda +1 Altro</div>
+                        </div>
+                    </div>
+                    <button onclick="window.app.upgrade('multitap')" class="btn-gold-vip px-4 py-2.5 rounded-2xl text-center min-w-[100px]">
+                        <div id="boost-multitap-cost" class="font-mono text-xs">200 Altro</div>
+                        <div class="text-[9px] font-black uppercase tracking-wider">Oshirish</div>
+                    </button>
+                </div>
+
+                <!-- Energy Limit Upgrade -->
+                <div class="glass-panel p-4 flex items-center justify-between border-slate-800 hover:border-amber-400/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-slate-900 text-yellow-400 flex items-center justify-center text-xl border-2 border-amber-400/50 shadow-md shadow-amber-500/20">
+                            <i class="fa-solid fa-battery-full"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-black text-white">Energiya Sig'imi</div>
+                            <div id="boost-energy-lvl" class="text-xs text-slate-400 font-semibold">Daraja 1</div>
+                            <div class="text-[11px] text-yellow-300 font-bold mt-0.5">+500 Maksimal Energiya</div>
+                        </div>
+                    </div>
+                    <button onclick="window.app.upgrade('energy_limit')" class="btn-gold-vip px-4 py-2.5 rounded-2xl text-center min-w-[100px]">
+                        <div id="boost-energy-cost" class="font-mono text-xs">250 Altro</div>
+                        <div class="text-[9px] font-black uppercase tracking-wider">Oshirish</div>
+                    </button>
+                </div>
+
+                <!-- Recharge Speed Upgrade -->
+                <div class="glass-panel p-4 flex items-center justify-between border-slate-800 hover:border-amber-400/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-slate-900 text-yellow-400 flex items-center justify-center text-xl border-2 border-amber-400/50 shadow-md shadow-amber-500/20">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-black text-white">Tiklanish Tezligi</div>
+                            <div id="boost-recharge-lvl" class="text-xs text-slate-400 font-semibold">Daraja 1</div>
+                            <div class="text-[11px] text-yellow-300 font-bold mt-0.5">+1 Energiya / soniya</div>
+                        </div>
+                    </div>
+                    <button onclick="window.app.upgrade('recharge_speed')" class="btn-gold-vip px-4 py-2.5 rounded-2xl text-center min-w-[100px]">
+                        <div id="boost-recharge-cost" class="font-mono text-xs">300 Altro</div>
+                        <div class="text-[9px] font-black uppercase tracking-wider">Oshirish</div>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 3: WITHDRAW / UC YECHISH ==================== -->
+        <main id="tab-withdraw" class="tab-pane flex-1">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-xl mb-2 shadow-lg shadow-amber-500/40 font-black">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <h2 class="text-xl font-black text-white">PUBG UC Yechib Olish</h2>
+                <p class="text-xs text-slate-400">Yig'ilgan Altro UC larni hisobingizga chiqaring</p>
+            </div>
+
+            <!-- Balans Card -->
+            <div class="glass-panel p-4 mb-4 border-amber-400/50 flex items-center justify-between">
+                <div>
+                    <div class="text-[10px] text-yellow-400 font-extrabold uppercase tracking-wider">Mavjud Balans</div>
+                    <div class="text-2xl font-black text-gold-shine font-mono">
+                        <span class="user-balance">0</span> Altro UC
+                    </div>
+                </div>
+                <div class="text-right bg-slate-900/80 px-3 py-1.5 rounded-xl border border-amber-400/30">
+                    <div class="text-[11px] text-yellow-300 font-black">16.000 = 60 UC</div>
+                    <div class="text-[11px] text-yellow-300 font-black">8.000 = 30 UC</div>
+                </div>
+            </div>
+
+            <!-- Packages Grid -->
+            <div id="packages-grid" class="grid grid-cols-1 gap-3">
+                <!-- Dynamically populated from JS -->
+            </div>
+
+            <!-- 24/7 Support Banner in Withdraw -->
+            <div class="mt-4 p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-500/40 flex items-center justify-between shadow-lg shadow-emerald-950/40">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-black text-white">24/7 Qo'llab-quvvatlash</div>
+                        <div class="text-[10px] text-slate-400">UC yechish bo'yicha yordam: <span class="text-emerald-400 font-bold">@ALTRO_ADMN</span></div>
+                    </div>
+                </div>
+                <a href="https://t.me/ALTRO_ADMN" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-black flex items-center gap-1 transition-all">
+                    <span>Lichka</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 4: TASKS / VAZIFALAR ==================== -->
+        <main id="tab-tasks" class="tab-pane flex-1">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-xl mb-2 shadow-lg shadow-amber-500/40 font-black">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+                <h2 class="text-xl font-black text-white">Vazifalar & Bonuslar</h2>
+                <p class="text-xs text-slate-400">Shartlarni bajaring va ko'proq Altro UC oling</p>
+            </div>
+
+            <!-- Tasks List -->
+            <div id="tasks-list" class="space-y-3 mb-5">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Referral Program Card -->
+            <div class="glass-panel p-4 border-amber-400/50">
+                <div class="flex items-center gap-3.5 mb-2.5">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 text-black flex items-center justify-center text-xl font-black shadow-md shadow-amber-500/30">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-black text-white">Do'stlarni Taklif Qilish</div>
+                        <div class="text-xs text-yellow-300 font-bold">Har bir do'st uchun: +500 Altro UC</div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mt-3">
+                    <div class="flex items-center gap-2">
+                        <input id="referral-link-input" type="text" readonly class="flex-1 bg-slate-900 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-slate-300 font-mono">
+                        <button onclick="window.app.copyReferralLink()" class="px-4 py-2.5 rounded-2xl bg-slate-800 text-yellow-400 text-xs font-bold border border-slate-700 hover:border-yellow-400">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+
+                    <button onclick="window.app.shareReferralTelegram()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-telegram text-base"></i>
+                        <span>Telegramda Do'stlarga Ulashish</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ==================== TAB 5: REYTING / LEADERBOARD ==================== -->
+        <main id="tab-leaderboard" class="tab-pane flex-1">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-xl mb-2 shadow-lg shadow-amber-500/40 font-black">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="text-xl font-black text-white">Eng Faol O'yinchilar</h2>
+                <p class="text-xs text-slate-400">Top-1 o'rin eng eng faol o'yinchilar reytingi</p>
+            </div>
+
+            <!-- Current User Rank Pinned Card -->
+            <div id="user-rank-card"></div>
+
+            <!-- Top List -->
+            <div id="leaderboard-list" class="space-y-2.5">
+                <!-- Dynamically populated -->
+            </div>
+        </main>
+
+        <!-- ==================== TAB 6: PROFIL & TARIX ==================== -->
+        <main id="tab-profile" class="tab-pane flex-1">
+            <div class="text-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-xl mb-2 shadow-lg shadow-amber-500/40 font-black">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-xl font-black text-white">Mening Profilim</h2>
+                <p class="text-xs text-slate-400">Barcha ma'lumotlar va yechilgan UC lar tarixi</p>
+            </div>
+
+            <!-- User Info Card -->
+            <div class="glass-panel p-4 mb-4 border-amber-400/40">
+                <div class="flex items-center gap-3.5 mb-3.5">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-200 p-[2.5px] shadow-lg shadow-amber-500/40">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center text-yellow-300 font-black text-2xl">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div id="profile-name" class="text-base font-black text-white">Player</div>
+                        <div id="profile-tg-id" class="text-xs text-slate-400 font-mono">Telegram ID: ---</div>
+                    </div>
+                </div>
+
+                <!-- Stats Counters -->
+                <div class="grid grid-cols-3 gap-2.5 text-center pt-3 border-t border-slate-800">
+                    <div class="p-2.5 bg-slate-950/70 rounded-2xl border border-slate-800/80">
+                        <div class="text-[10px] text-slate-400 font-semibold">Jami Yig'ilgan</div>
+                        <div id="profile-total-mined" class="text-xs font-black text-yellow-400 font-mono">0</div>
+                    </div>
+                    <div class="p-2.5 bg-slate-950/70 rounded-2xl border border-slate-800/80">
+                        <div class="text-[10px] text-slate-400 font-semibold">Yechilgan UC</div>
+                        <div id="profile-total-uc" class="text-xs font-black text-yellow-300 font-mono">0 UC</div>
+                    </div>
+                    <div class="p-2.5 bg-slate-950/70 rounded-2xl border border-slate-800/80">
+                        <div class="text-[10px] text-slate-400 font-semibold">Do'stlar</div>
+                        <div id="profile-referrals" class="text-xs font-black text-yellow-400 font-mono">0 ta</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PUBG Mobile Info Edit -->
+            <div class="glass-panel p-4 mb-4 border-slate-800">
+                <div class="text-xs font-black text-white mb-2.5 flex items-center gap-2">
+                    <i class="fa-solid fa-crosshairs text-yellow-400"></i>
+                    <span>PUBG Mobile Hisobingiz</span>
+                </div>
+                <div class="space-y-2.5">
+                    <input id="profile-pubg-id-input" type="text" placeholder="PUBG Player ID (UID), masalan: 512345678" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                    <input id="profile-pubg-name-input" type="text" placeholder="PUBG Nickname (ixtiyoriy)" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white">
+                    <button onclick="window.profileManager.savePubgDetails()" class="w-full py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-yellow-400 font-black text-xs border border-amber-400/40">
+                        Saqlash
+                    </button>
+                </div>
+            </div>
+
+            <!-- 24/7 Support Card -->
+            <div class="glass-panel p-4 mb-4 border-emerald-500/40 bg-gradient-to-r from-emerald-950/30 to-slate-900/60 shadow-lg shadow-emerald-950/30">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-lg shadow-md shadow-emerald-500/20">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-black text-white flex items-center gap-1.5">
+                                <span>24/7 Qo'llab-quvvatlash</span>
+                                <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-emerald-500/20 text-emerald-300 font-extrabold uppercase">Online</span>
+                            </div>
+                            <div class="text-xs font-bold text-emerald-400 font-mono">@ALTRO_ADMN</div>
+                        </div>
+                    </div>
+                    <a href="https://t.me/ALTRO_ADMN" target="_blank" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-black font-black text-xs shadow-md shadow-emerald-500/30 flex items-center gap-1.5 transition-all">
+                        <i class="fa-brands fa-telegram text-sm"></i>
+                        <span>Lichka</span>
+                    </a>
+                </div>
+                <p class="text-[10px] text-slate-400">Har qanday savol, to'lovlar, UC yechish va hamkorlik bo'yicha 24 soat davomida lichkaga yozishingiz mumkin.</p>
+            </div>
+
+            <!-- Withdrawal History -->
+            <div class="text-xs font-black text-slate-300 mb-2.5 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-yellow-400"></i>
+                <span>UC Yechish Tarixi</span>
+            </div>
+            <div id="history-list" class="space-y-2.5">
+                <!-- Dynamically loaded -->
+            </div>
+        </main>
+
+    </div>
+
+    <!-- ==================== MODAL: WITHDRAW CONFIRMATION ==================== -->
+    <div id="withdraw-modal" class="modal-overlay hidden">
+        <div class="modal-content p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 p-[1.5px] flex items-center justify-center">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                            <img src="images/uc_coin.png" class="w-5 h-5 object-contain" alt="UC">
+                        </div>
+                    </div>
+                    <h3 class="text-base font-black text-white">UC Chiqarish</h3>
+                </div>
+                <button onclick="window.withdrawManager.closeModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="glass-panel p-3.5 mb-4 border-amber-400/50">
+                <div class="flex justify-between text-xs mb-1.5">
+                    <span class="text-slate-400">Yechilayotgan UC:</span>
+                    <span id="modal-package-uc" class="font-black text-gold-shine text-sm">0 UC</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span class="text-slate-400">Yechiladigan Altro:</span>
+                    <span id="modal-package-cost" class="font-bold text-white">0 Altro UC</span>
+                </div>
+            </div>
+
+            <div class="space-y-3 mb-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">PUBG Mobile Player ID (UID): *</label>
+                    <input id="modal-pubg-id" type="number" placeholder="Masalan: 512345678" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">PUBG Nickname (Ixtiyoriy):</label>
+                    <input id="modal-pubg-name" type="text" placeholder="Masalan: ProPlayerUZ" class="w-full bg-slate-950 border border-slate-700 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-400">
+                </div>
+            </div>
+
+            <div class="text-[11px] text-slate-400 mb-4 bg-slate-950/80 p-3 rounded-2xl border border-slate-800">
+                ⚠️ <b>Eslatma:</b> PUBG Player ID raqamini xatosiz kiriting. Ariza adminlar tomonidan tasdiqlanib, hisobingizga tushirib beriladi.
+            </div>
+
+            <button id="btn-submit-withdraw" onclick="window.withdrawManager.submitWithdrawal()" class="btn-gold-vip w-full py-3.5 rounded-2xl text-xs font-black">
+                Tasdiqlash va Yechish
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: MANDATORY CHANNELS ==================== -->
+    <div id="mandatory-modal" class="modal-overlay hidden">
+        <div class="modal-content p-5 text-center">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-2xl mb-3 shadow-lg shadow-amber-500/40 font-black">
+                <i class="fa-solid fa-bullhorn"></i>
+            </div>
+            <h3 class="text-base font-black text-white mb-1">Rasmiy Kanallarga Obuna Bo'ling</h3>
+            <p class="text-xs text-slate-400 mb-4">O'yinda ishlash va UC larni yechib olish uchun quyidagi rasmiy kanallarimizga obuna bo'lishingiz shart:</p>
+
+            <div id="mandatory-channels-list" class="space-y-2 mb-4">
+                <!-- Populated via JS -->
+            </div>
+
+            <button onclick="window.app.confirmSubscription()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
+                ✅ A'zo bo'ldim (Tasdiqlash)
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== BOTTOM FLOATING NAVIGATION BAR ==================== -->
+    <nav class="bottom-nav">
+        <div id="nav-tap" class="nav-item active" onclick="window.app.switchTab('tap')">
+            <i class="fa-solid fa-hand-pointer"></i>
+            <span>O'yin</span>
+        </div>
+
+        <div id="nav-boost" class="nav-item" onclick="window.app.switchTab('boost')">
+            <i class="fa-solid fa-rocket"></i>
+            <span>Boost</span>
+        </div>
+
+        <div id="nav-withdraw" class="nav-item" onclick="window.app.switchTab('withdraw')">
+            <i class="fa-solid fa-gem"></i>
+            <span>UC Yechish</span>
+        </div>
+
+        <div id="nav-tasks" class="nav-item" onclick="window.app.switchTab('tasks')">
+            <i class="fa-solid fa-gift"></i>
+            <span>Vazifalar</span>
+        </div>
+
+        <div id="nav-leaderboard" class="nav-item" onclick="window.app.switchTab('leaderboard')">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Reyting</span>
+        </div>
+
+        <div id="nav-profile" class="nav-item" onclick="window.app.switchTab('profile')">
+            <i class="fa-solid fa-user"></i>
+            <span>Profil</span>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/withdraw.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="js/leaderboard.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
