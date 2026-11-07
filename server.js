@@ -588,11 +588,6 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Periodic Cloud Backup to Telegram (every 5 minutes)
-setInterval(() => {
-    backupDatabase(bot, OWNER_ID, 'avtomatik 5-minutlik');
-}, 5 * 60 * 1000);
-
 // Keep-Alive: Ping itself every 8 minutes to prevent Render free tier from sleeping
 const WEBAPP_URL = process.env.WEBAPP_URL || '';
 if (WEBAPP_URL && WEBAPP_URL.startsWith('https://')) {
