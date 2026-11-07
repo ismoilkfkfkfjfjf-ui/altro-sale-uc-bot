@@ -18,7 +18,7 @@ services:
         value: "7081580477,8422157752"
       - key: SUPPORT_USERNAME
         value: ALTRO_ADMN
-      - key: BOT_TOKEN
-        sync: false
       - key: WEBAPP_URL
+        value: https://altro-sale-uc-bot.onrender.com
+      - key: BOT_TOKEN
         sync: false

@@ -1,13 +1,16 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const https = require('https');
 require('dotenv').config();
 
 const { db, users, withdrawals, admins, settings, tasks, channels, packages } = require('./database');
 const { bot, notifyWithdrawalUpdate, notifyAdminsNewWithdrawal, broadcastMessage } = require('./bot');
+const { restoreDatabaseIfMissing, backupDatabase } = require('./backup');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const OWNER_ID = process.env.OWNER_ID ? parseInt(process.env.OWNER_ID.trim()) : 7081580477;
 
 // Middleware
 app.use(cors());
@@ -231,6 +234,9 @@ app.post('/api/withdraw/request', (req, res) => {
             uc_amount: result.uc,
             altro_spent: result.altro_spent || 0
         }).catch(err => console.warn('Admin notification error:', err.message));
+
+        // Save cloud backup immediately so new withdrawal is never lost
+        backupDatabase(bot, OWNER_ID, 'yangi_ariza');
 
         res.json({
             success: true,
@@ -463,7 +469,59 @@ app.post('/api/admin/broadcast', requireAdmin, async (req, res) => {
     res.json({ success: true, result });
 });
 
-// Start Express Server
-app.listen(PORT, () => {
-    console.log(`🚀 ALTRO SALE UC BOT Serveri ishga tushdi: http://localhost:${PORT}`);
+// Health check route for Render and Uptime monitoring
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        app: 'ALTRO SALE UC BOT',
+        uptime: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString()
+    });
 });
+
+// Periodic Cloud Backup to Telegram (every 5 minutes)
+setInterval(() => {
+    backupDatabase(bot, OWNER_ID, 'avtomatik 5-minutlik');
+}, 5 * 60 * 1000);
+
+// Keep-Alive: Ping itself every 8 minutes to prevent Render free tier from sleeping
+const WEBAPP_URL = process.env.WEBAPP_URL || '';
+if (WEBAPP_URL && WEBAPP_URL.startsWith('https://')) {
+    setInterval(() => {
+        const pingUrl = `${WEBAPP_URL}/health`;
+        https.get(pingUrl, (res) => {
+            // keep alive successful
+        }).on('error', (e) => {
+            console.warn('Keep-alive ping error:', e.message);
+        });
+    }, 8 * 60 * 1000);
+    console.log(`⏱️ 24/7 Keep-alive faollashtirildi: ${WEBAPP_URL}/health`);
+}
+
+// Graceful container shutdown (Save database before Render stops the container)
+process.once('SIGTERM', async () => {
+    console.log('🛑 SIGTERM: Render to\'xtatilishidan oldin zaxira saqlanmoqda...');
+    await backupDatabase(bot, OWNER_ID, 'shutdown (SIGTERM)');
+    process.exit(0);
+});
+
+process.once('SIGINT', async () => {
+    console.log('🛑 SIGINT: Server to\'xtatilishidan oldin zaxira saqlanmoqda...');
+    await backupDatabase(bot, OWNER_ID, 'shutdown (SIGINT)');
+    process.exit(0);
+});
+
+// Start Express Server with Cloud Backup Check
+(async () => {
+    // 1. Try restoring latest backup from Telegram if container is fresh
+    try {
+        await restoreDatabaseIfMissing(bot, OWNER_ID);
+    } catch (err) {
+        console.warn('Startup restore warning:', err.message);
+    }
+
+    // 2. Start server
+    app.listen(PORT, () => {
+        console.log(`🚀 ALTRO SALE UC BOT Serveri ishga tushdi: http://localhost:${PORT}`);
+    });
+})();

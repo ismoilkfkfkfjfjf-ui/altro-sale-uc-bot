@@ -201,6 +201,24 @@ if (bot) {
         await ctx.answerCbQuery();
     });
 
+    // Backup command (Owner & Admins only)
+    bot.command('backup', async (ctx) => {
+        const userId = ctx.from.id;
+        if (!admins.isAdmin(userId)) {
+            return ctx.reply('⛔ Kechirasiz, siz admin emassiz.');
+        }
+
+        await ctx.reply('⏳ Zaxira nusxasi tayyorlanmoqda...');
+        try {
+            const { backupDatabase } = require('./backup');
+            const ownerId = process.env.OWNER_ID ? parseInt(process.env.OWNER_ID) : 7081580477;
+            await backupDatabase(bot, ownerId, `Qo'lda (Admin ${userId})`);
+            await ctx.reply('✅ Ma\'lumotlar bazasi zaxirasi Telegramga saqlandi va qadab qo\'yildi! Barcha foydalanuvchilar balansi himoyalangan.');
+        } catch (e) {
+            await ctx.reply('⚠️ Zaxiralashda xatolik: ' + e.message);
+        }
+    });
+
     // Support command
     bot.command(['support', 'yordam', 'aloqa', 'help'], async (ctx) => {
         await ctx.reply(
