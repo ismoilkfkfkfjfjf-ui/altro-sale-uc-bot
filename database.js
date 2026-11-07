@@ -9,11 +9,13 @@ if (!fs.existsSync(dbDir)) {
 }
 const db = new Database(dbPath);
 
-// Ultra-fast SQLite pragmas for 30,000+ users
+// Ultra-fast SQLite pragmas for 30,000+ users (Blazing Fast In-Memory Speed)
 db.pragma('journal_mode = WAL');
 db.pragma('synchronous = NORMAL');
 db.pragma('cache_size = -64000'); // 64MB cache
 db.pragma('temp_store = MEMORY');
+db.pragma('mmap_size = 268435456'); // 256MB memory mapped I/O
+db.pragma('busy_timeout = 5000'); // Wait up to 5s if locked, never throw busy error
 
 function initDb() {
     // 1. Users table

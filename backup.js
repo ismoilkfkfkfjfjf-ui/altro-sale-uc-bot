@@ -70,6 +70,14 @@ async function backupDatabase(bot, ownerId, reason = 'auto') {
     if (!bot || !ownerId || isBackingUp) return;
     if (!fs.existsSync(DB_PATH)) return;
 
+    // Checkpoint WAL journal into main sqlite file so all latest data is flushed
+    try {
+        const { db } = require('./database');
+        if (db && typeof db.pragma === 'function') {
+            db.pragma('wal_checkpoint(TRUNCATE)');
+        }
+    } catch (e) {}
+
     const stats = fs.statSync(DB_PATH);
     if (stats.size < 4096) return;
 
