@@ -41,7 +41,8 @@ class MainApp {
                 tasks: data.tasks,
                 mandatory_channels: data.mandatory_channels,
                 is_admin: data.is_admin,
-                settings: data.settings
+                settings: data.settings,
+                is_subscribed: data.is_subscribed
             };
 
             // Setup Sound toggle
@@ -60,8 +61,10 @@ class MainApp {
             window.gameEngine.init();
             this.updateUI();
 
-            // Check mandatory subscription
-            this.checkMandatoryChannels();
+            // 100% strict channel subscription check: block Web App if not subscribed
+            if (data.is_subscribed === false && data.missing_channels && data.missing_channels.length > 0) {
+                this.showMandatoryModal(data.missing_channels);
+            }
 
         } catch (err) {
             console.error('App init error:', err);
@@ -112,41 +115,84 @@ class MainApp {
         };
     }
 
-    checkMandatoryChannels() {
-        const channels = window.appState.mandatory_channels || [];
-        // If there are mandatory channels and user came from browser or not verified
+    showMandatoryModal(channelsList) {
         const modal = document.getElementById('mandatory-modal');
         const list = document.getElementById('mandatory-channels-list');
-        
-        if (channels.length > 0 && modal && list) {
-            // Render channel links
-            list.innerHTML = channels.map(ch => `
-                <a href="${ch.invite_link}" target="_blank" class="glass-panel p-3 flex items-center justify-between border border-amber-500/30 hover:border-amber-400 transition-all">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-brands fa-telegram text-sky-400 text-xl"></i>
-                        <div class="text-left">
-                            <div class="text-xs font-bold text-white">${ch.title}</div>
-                            <div class="text-[10px] text-slate-400">${ch.channel_username}</div>
-                        </div>
-                    </div>
-                    <span class="px-2.5 py-1 rounded text-xs font-bold bg-sky-500/20 text-sky-300">A'zo bo'lish</span>
-                </a>
-            `).join('');
+        const errEl = document.getElementById('mandatory-error-msg');
+        if (!modal || !list) return;
 
-            // If flag not confirmed locally, show modal
-            const confirmed = sessionStorage.getItem('mandatory_confirmed');
-            if (!confirmed) {
-                modal.classList.remove('hidden');
-            }
-        }
+        if (errEl) errEl.classList.add('hidden');
+
+        list.innerHTML = channelsList.map(ch => `
+            <a href="${ch.invite_link}" target="_blank" class="glass-panel p-3.5 flex items-center justify-between border border-amber-400/40 hover:border-amber-300 transition-all bg-slate-900/90 rounded-2xl">
+                <div class="flex items-center gap-3 overflow-hidden mr-2">
+                    <div class="w-10 h-10 rounded-full bg-sky-500/20 text-sky-400 border border-sky-400/30 flex items-center justify-center text-xl flex-shrink-0">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div class="text-left overflow-hidden">
+                        <div class="text-xs font-black text-white truncate">${ch.title}</div>
+                        <div class="text-[10px] text-yellow-400 font-mono truncate">${ch.channel_username}</div>
+                    </div>
+                </div>
+                <span class="px-3 py-1.5 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-md flex items-center gap-1.5 flex-shrink-0">
+                    <span>A'zo bo'lish</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </span>
+            </a>
+        `).join('');
+
+        modal.classList.remove('hidden');
     }
 
-    confirmSubscription() {
-        sessionStorage.setItem('mandatory_confirmed', 'true');
-        const modal = document.getElementById('mandatory-modal');
-        if (modal) modal.classList.add('hidden');
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+    async confirmSubscription() {
+        const btn = document.getElementById('btn-check-mandatory-sub');
+        const btnText = document.getElementById('btn-check-sub-text');
+        const errEl = document.getElementById('mandatory-error-msg');
+
+        if (!window.appState.user) return;
+
+        if (btn) btn.disabled = true;
+        if (btnText) btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Tekshirilmoqda...';
+
+        try {
+            const res = await fetch('/api/user/check-sub', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telegram_id: window.appState.user.telegram_id
+                })
+            });
+
+            const data = await res.json();
+            if (data.is_subscribed) {
+                window.appState.is_subscribed = true;
+                const modal = document.getElementById('mandatory-modal');
+                if (modal) modal.classList.add('hidden');
+
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
+                alert('🎉 Obunangiz muvaffaqiyatli tasdiqlandi! O\'yinga xush kelibsiz!');
+            } else {
+                const missingTitles = (data.missing_channels || []).map(c => `"${c.title}"`).join(', ');
+                if (errEl) {
+                    errEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Siz hali quyidagi kanal(lar)ga a'zo bo'lmadingiz:<br><b class="text-white">${missingTitles || 'Barcha kanallar'}</b>.<br><span class="text-yellow-300">Iltimos, avval obuna bo'ling va keyin qayta tekshiring!</span>`;
+                    errEl.classList.remove('hidden');
+                }
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+                }
+                if (data.missing_channels && data.missing_channels.length > 0) {
+                    this.showMandatoryModal(data.missing_channels);
+                }
+            }
+        } catch (err) {
+            if (errEl) {
+                errEl.textContent = '⚠️ Tarmoq xatoligi. Qayta urinib ko\'ring.';
+                errEl.classList.remove('hidden');
+            }
+        } finally {
+            if (btn) btn.disabled = false;
+            if (btnText) btnText.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> A\'zo bo\'ldim (Tekshirish)';
         }
     }
 

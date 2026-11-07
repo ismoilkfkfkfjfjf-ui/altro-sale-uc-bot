@@ -13,41 +13,119 @@ if (BOT_TOKEN && BOT_TOKEN !== 'YOUR_TELEGRAM_BOT_TOKEN_HERE') {
     console.warn('⚠️ BOT_TOKEN sozlanmagan! Bot test rejimida ishlaydi yoki .env faylida BOT_TOKEN kiriting.');
 }
 
-// Check if user is member of all mandatory channels (100% strict check)
-async function checkUserSubscription(ctx, userId) {
+// In-memory subscription cache (TTL 3 minutes) to avoid Telegram API rate limits during rapid actions
+const subCache = new Map();
+
+function clearSubCache(userId) {
+    if (userId) subCache.delete(Number(userId));
+    else subCache.clear();
+}
+
+function normalizeChannelUsername(raw) {
+    if (!raw) return '';
+    let val = String(raw).trim();
+    if (/^-?\d+$/.test(val)) return parseInt(val, 10);
+    val = val.replace(/^https?:\/\/t\.me\//i, '').replace(/^t\.me\//i, '').replace(/\/+$/, '').trim();
+    if (val && !val.startsWith('@') && !val.startsWith('+')) {
+        val = '@' + val;
+    }
+    return val;
+}
+
+function normalizeChannelData(username, inviteLink) {
+    let u = normalizeChannelUsername(username);
+    let l = (inviteLink || '').trim();
+
+    if (!l && typeof u === 'string' && u.startsWith('@')) {
+        l = 'https://t.me/' + u.substring(1);
+    } else if (l && !l.startsWith('http')) {
+        l = 'https://' + l;
+    }
+
+    return { channel_username: u, invite_link: l };
+}
+
+// Check if user is member of all mandatory channels (100% strict check with Telegram API)
+async function checkUserSubscription(userId, forceRefresh = false, ctx = null) {
     const isMandatoryActive = settings.get('channel_mandatory_active') !== '0';
     if (!isMandatoryActive) return { allSubscribed: true, missing: [] };
 
     const activeChannels = channels.getAll();
-    if (activeChannels.length === 0) return { allSubscribed: true, missing: [] };
+    if (!activeChannels || activeChannels.length === 0) return { allSubscribed: true, missing: [] };
+
+    const telegramApi = ctx?.telegram || bot?.telegram;
+    if (!telegramApi) return { allSubscribed: true, missing: [] };
+
+    const uid = Number(userId);
+    if (!uid) return { allSubscribed: true, missing: [] };
+
+    // Check cache
+    if (!forceRefresh) {
+        const cached = subCache.get(uid);
+        if (cached && cached.isSubscribed && (Date.now() - cached.time < 3 * 60 * 1000)) {
+            return { allSubscribed: true, missing: [] };
+        }
+    }
 
     const missing = [];
     for (const ch of activeChannels) {
+        const chatId = normalizeChannelUsername(ch.channel_username);
+        if (!chatId) continue;
+
+        const inviteLink = ch.invite_link || (typeof chatId === 'string' && chatId.startsWith('@') ? `https://t.me/${chatId.substring(1)}` : '#');
+
         try {
-            const member = await ctx.telegram.getChatMember(ch.channel_username, userId);
+            const member = await telegramApi.getChatMember(chatId, uid);
             const isSubscribed = member && (
                 ['creator', 'administrator', 'member'].includes(member.status) ||
                 (member.status === 'restricted' && member.is_member)
             );
 
             if (!isSubscribed) {
-                missing.push(ch);
+                missing.push({
+                    ...ch,
+                    channel_username: chatId,
+                    invite_link: inviteLink
+                });
             }
         } catch (err) {
-            const msg = err.message || '';
-            // If user not found in chat, they have definitely NOT subscribed
-            if (msg.includes('user not found') || msg.includes('PARTICIPANT_ID_INVALID')) {
-                missing.push(ch);
-            } else if (msg.includes('chat not found') || msg.includes('bot is not a member') || msg.includes('not enough rights')) {
-                console.warn(`[Kanal tekshirish ogohlantirishi] Bot ${ch.channel_username} kanaliga admin qilinmagan:`, msg);
+            const msg = (err.response?.description || err.message || '').toLowerCase();
+            console.warn(`[Kanal tekshirish] User ${uid} | Kanal ${chatId} xatolik:`, msg);
+
+            // User not found in chat, participant invalid, or user left -> Definitely NOT subscribed
+            if (msg.includes('user not found') || msg.includes('participant') || msg.includes('not a member') || msg.includes('not found')) {
+                missing.push({
+                    ...ch,
+                    channel_username: chatId,
+                    invite_link: inviteLink
+                });
+            } else if (msg.includes('member list is inaccessible') || msg.includes('bot is not a member') || msg.includes('chat not found')) {
+                console.error(`⚠️ DIQQAT: Bot ${chatId} kanaliga ADMIN qilinmagan! Iltimos botni kanalga admin qiling.`);
+                // Bot cannot access members because it's not admin; mark as missing so user/admin is alerted
+                missing.push({
+                    ...ch,
+                    channel_username: chatId,
+                    invite_link: inviteLink
+                });
             } else {
-                missing.push(ch);
+                missing.push({
+                    ...ch,
+                    channel_username: chatId,
+                    invite_link: inviteLink
+                });
             }
         }
     }
 
+    const allSubscribed = missing.length === 0;
+    if (allSubscribed) {
+        subCache.set(uid, { isSubscribed: true, time: Date.now() });
+    } else {
+        subCache.delete(uid);
+    }
+
     return {
-        allSubscribed: missing.length === 0,
+        allSubscribed,
         missing
     };
 }
@@ -113,19 +191,20 @@ if (bot) {
             referrer_id: referrerId
         });
 
-        // Check mandatory subscription
-        const subCheck = await checkUserSubscription(ctx, userId);
+        // 100% strict channel subscription check
+        const subCheck = await checkUserSubscription(userId, true, ctx);
 
         if (!subCheck.allSubscribed) {
-            const buttons = subCheck.missing.map(ch => Markup.button.url(`📢 ${ch.title}`, ch.invite_link));
-            buttons.push(Markup.button.callback('✅ A\'zo bo\'ldim (Tekshirish)', 'check_sub'));
+            const buttons = subCheck.missing.map(ch => [Markup.button.url(`📢 ${ch.title}`, ch.invite_link)]);
+            buttons.push([Markup.button.callback('🔄 A\'zo bo\'ldim (Tekshirish)', 'check_sub')]);
 
             return ctx.reply(
                 `👋 **Assalomu alaykum, ${ctx.from.first_name}!**\n\n` +
-                `🎮 **ALTRO SALE UC BOT** botidan foydalanish va bepul **PUBG Mobile UC** yutib olish uchun quyidagi rasmiy kanallarimizga obuna bo'ling:`,
+                `🎮 **ALTRO SALE UC BOT** botidan foydalanish va bepul **PUBG Mobile UC** yutib olish uchun quyidagi rasmiy kanallarimizga obuna bo'ling:\n\n` +
+                `*Barcha kanallarga a'zo bo'lgach, pastdagi "🔄 A'zo bo'ldim" tugmasini bosing!*`,
                 {
                     parse_mode: 'Markdown',
-                    ...Markup.inlineKeyboard(buttons, { columns: 1 })
+                    ...Markup.inlineKeyboard(buttons)
                 }
             );
         }
@@ -137,13 +216,18 @@ if (bot) {
     // Check subscription callback
     bot.action('check_sub', async (ctx) => {
         const userId = ctx.from.id;
-        const subCheck = await checkUserSubscription(ctx, userId);
+        clearSubCache(userId);
+        const subCheck = await checkUserSubscription(userId, true, ctx);
 
         if (!subCheck.allSubscribed) {
-            return ctx.answerCbQuery('⚠️ Siz hali hamma kanallarga a\'zo bo\'lmadingiz! Iltimos, obuna bo\'ling.', { show_alert: true });
+            const missingNames = subCheck.missing.map(c => `"${c.title}"`).join(', ');
+            return ctx.answerCbQuery(
+                `⚠️ Siz hali quyidagi kanal(lar)ga a'zo bo'lmadingiz: ${missingNames}!\nIltimos, obuna bo'ling va qayta bosing.`,
+                { show_alert: true }
+            );
         }
 
-        await ctx.answerCbQuery('🎉 Obuna tasdiqlandi!');
+        await ctx.answerCbQuery('🎉 Obunangiz muvaffaqiyatli tasdiqlandi!');
         try {
             await ctx.deleteMessage();
         } catch (e) {}
@@ -418,6 +502,9 @@ async function notifyAdminsNewWithdrawal(withdrawal) {
 module.exports = {
     bot,
     checkUserSubscription,
+    clearSubCache,
+    normalizeChannelData,
+    normalizeChannelUsername,
     notifyWithdrawalUpdate,
     notifyAdminsNewWithdrawal,
     broadcastMessage

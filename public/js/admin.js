@@ -383,6 +383,9 @@ class AdminPanel {
                 <td class="p-3.5 text-yellow-300 font-mono text-xs">${ch.channel_username}</td>
                 <td class="p-3.5 text-slate-300 text-xs"><a href="${ch.invite_link}" target="_blank" class="underline text-yellow-400 font-bold">Havola</a></td>
                 <td class="p-3.5 text-right space-x-1.5">
+                    <button onclick="window.adminPanel.testBotChannel('${ch.channel_username}')" class="px-2.5 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 hover:bg-sky-500/30 text-xs font-black border border-sky-400/30" title="Bot ushbu kanalda adminligini tekshirish">
+                        <i class="fa-solid fa-robot"></i> Botni Tekshirish
+                    </button>
                     <button onclick="window.adminPanel.openEditChannelModal(${ch.id})" class="px-3 py-1.5 rounded-xl bg-amber-500/20 text-yellow-300 hover:bg-amber-500/30 text-xs font-black border border-amber-400/40">
                         <i class="fa-solid fa-pen-to-square"></i> Tahrirlash
                     </button>
@@ -394,14 +397,36 @@ class AdminPanel {
         `).join('');
     }
 
+    async testBotChannel(username) {
+        if (!username) return;
+        const res = await this.apiPost('/api/admin/channels/test', { channel_username: username });
+        if (res.is_admin) {
+            alert(`✅ Ajoyib! Bot ${res.channel} kanalida ADMIN tayinlangan!\nFoydalanuvchilar obunasi 100% aniq va to'g'ri tekshiriladi.`);
+        } else {
+            alert(`❌ DIQQAT: Bot ${res.channel || username} kanalida ADMIN EMAS!\n\nXatolik: ${res.error || 'Admin huquqi topilmadi'}\n\n👉 Yechim: Telegramga kiring, ${res.channel || username} kanalingiz sozlamalariga kirib @altrosaleucbot ni ADMIN qilib tayinlang!`);
+        }
+    }
+
     async addChannel() {
         const title = document.getElementById('chan-title').value.trim();
-        const username = document.getElementById('chan-username').value.trim();
-        const inviteLink = document.getElementById('chan-link').value.trim();
+        let username = document.getElementById('chan-username').value.trim();
+        let inviteLink = document.getElementById('chan-link').value.trim();
 
-        if (!title || !username || !inviteLink) {
-            alert('Barcha maydonlarni to\'ldiring!');
+        if (!title || !username) {
+            alert('Kanal nomi va username kiritilishi shart!');
             return;
+        }
+
+        // Clean username
+        if (!/^-?\d+$/.test(username)) {
+            username = username.replace(/^https?:\/\/t\.me\//i, '').replace(/^t\.me\//i, '').replace(/\/+$/, '').trim();
+            if (username && !username.startsWith('@') && !username.startsWith('+')) {
+                username = '@' + username;
+            }
+        }
+
+        if (!inviteLink && username.startsWith('@')) {
+            inviteLink = 'https://t.me/' + username.substring(1);
         }
 
         const data = await this.apiPost('/api/admin/channels', {
@@ -411,7 +436,7 @@ class AdminPanel {
         });
 
         if (data.success) {
-            alert('Kanal muvaffaqiyatli qo\'shildi! ✅');
+            alert('Kanal muvaffaqiyatli qo\'shildi! ✅\n\n💡 Eslatma: Bot ushbu kanalda ADMIN qilingan bo\'lishi shart!');
             document.getElementById('chan-title').value = '';
             document.getElementById('chan-username').value = '';
             document.getElementById('chan-link').value = '';

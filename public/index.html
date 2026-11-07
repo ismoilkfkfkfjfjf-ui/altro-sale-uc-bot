@@ -478,21 +478,26 @@
         </div>
     </div>
 
-    <!-- ==================== MODAL: MANDATORY CHANNELS ==================== -->
+    <!-- ==================== MODAL: MANDATORY CHANNELS (100% STRICT BLOCK) ==================== -->
     <div id="mandatory-modal" class="modal-overlay hidden">
         <div class="modal-content p-5 text-center">
             <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 mx-auto flex items-center justify-center text-black text-2xl mb-3 shadow-lg shadow-amber-500/40 font-black">
                 <i class="fa-solid fa-bullhorn"></i>
             </div>
             <h3 class="text-base font-black text-white mb-1">Rasmiy Kanallarga Obuna Bo'ling</h3>
-            <p class="text-xs text-slate-400 mb-4">O'yinda ishlash va UC larni yechib olish uchun quyidagi rasmiy kanallarimizga obuna bo'lishingiz shart:</p>
+            <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+                ALTRO SALE UC BOT orqali PUBG Mobile UC ishlash va hisobga yechib olish uchun quyidagi rasmiy kanallarimizga obuna bo'lishingiz shart:
+            </p>
 
-            <div id="mandatory-channels-list" class="space-y-2 mb-4">
+            <div id="mandatory-error-msg" class="hidden mb-3 p-3 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-xs text-rose-300 text-left font-bold">
+            </div>
+
+            <div id="mandatory-channels-list" class="space-y-2.5 mb-4">
                 <!-- Populated via JS -->
             </div>
 
-            <button onclick="window.app.confirmSubscription()" class="btn-gold-vip w-full py-3 rounded-2xl text-xs font-black">
-                ✅ A'zo bo'ldim (Tasdiqlash)
+            <button id="btn-check-mandatory-sub" onclick="window.app.confirmSubscription()" class="btn-gold-vip w-full py-3.5 rounded-2xl text-xs font-black flex items-center justify-center gap-2">
+                <span id="btn-check-sub-text"><i class="fa-solid fa-arrows-rotate"></i> A'zo bo'ldim (Tekshirish)</span>
             </button>
         </div>
     </div>

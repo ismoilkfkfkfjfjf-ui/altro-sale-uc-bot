@@ -5,7 +5,7 @@ const https = require('https');
 require('dotenv').config();
 
 const { db, users, withdrawals, admins, settings, tasks, channels, packages } = require('./database');
-const { bot, notifyWithdrawalUpdate, notifyAdminsNewWithdrawal, broadcastMessage } = require('./bot');
+const { bot, checkUserSubscription, clearSubCache, normalizeChannelData, notifyWithdrawalUpdate, notifyAdminsNewWithdrawal, broadcastMessage } = require('./bot');
 const { restoreDatabaseIfMissing, backupDatabase } = require('./backup');
 
 const app = express();
@@ -64,6 +64,16 @@ app.post('/api/user/init', async (req, res) => {
         const mandatoryChannels = channels.getAll();
         const isAdmin = admins.isAdmin(telegram_id);
 
+        // 100% strict channel subscription check
+        let isSubscribed = true;
+        let missingChannels = [];
+        const isMandatoryActive = settings.get('channel_mandatory_active') !== '0';
+        if (isMandatoryActive && mandatoryChannels.length > 0) {
+            const subCheck = await checkUserSubscription(telegram_id);
+            isSubscribed = subCheck.allSubscribed;
+            missingChannels = subCheck.missing;
+        }
+
         res.json({
             success: true,
             user: {
@@ -75,6 +85,8 @@ app.post('/api/user/init', async (req, res) => {
             tasks: userTasks,
             mandatory_channels: mandatoryChannels,
             is_admin: isAdmin,
+            is_subscribed: isSubscribed,
+            missing_channels: missingChannels,
             settings: {
                 referral_bonus: settings.get('referral_bonus') || 500,
                 bot_name: settings.get('bot_name') || 'ALTRO SALE UC BOT',
@@ -89,12 +101,47 @@ app.post('/api/user/init', async (req, res) => {
     }
 });
 
+// Check channel subscription status live
+app.post('/api/user/check-sub', async (req, res) => {
+    try {
+        const { telegram_id } = req.body;
+        if (!telegram_id) {
+            return res.status(400).json({ error: 'telegram_id talab qilinadi' });
+        }
+
+        clearSubCache(telegram_id);
+        const subCheck = await checkUserSubscription(telegram_id, true);
+
+        res.json({
+            success: true,
+            is_subscribed: subCheck.allSubscribed,
+            missing_channels: subCheck.missing
+        });
+    } catch (err) {
+        console.error('Check sub error:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Process Taps (Batch sync)
-app.post('/api/user/tap', (req, res) => {
+app.post('/api/user/tap', async (req, res) => {
     try {
         const { telegram_id, taps } = req.body;
         if (!telegram_id || !taps || taps <= 0) {
             return res.status(400).json({ error: 'Invalid parameters' });
+        }
+
+        // Channel subscription check
+        const isMandatoryActive = settings.get('channel_mandatory_active') !== '0';
+        if (isMandatoryActive && channels.getAll().length > 0) {
+            const subCheck = await checkUserSubscription(telegram_id);
+            if (!subCheck.allSubscribed) {
+                return res.status(403).json({
+                    error: 'Iltimos, avval rasmiy kanallarga a\'zo bo\'ling!',
+                    is_subscribed: false,
+                    missing_channels: subCheck.missing
+                });
+            }
         }
 
         const result = users.syncTaps(telegram_id, taps);
@@ -113,11 +160,24 @@ app.post('/api/user/tap', (req, res) => {
 });
 
 // Boosts / Upgrades
-app.post('/api/user/upgrade', (req, res) => {
+app.post('/api/user/upgrade', async (req, res) => {
     try {
         const { telegram_id, type } = req.body;
         if (!telegram_id || !type) {
             return res.status(400).json({ error: 'telegram_id and type are required' });
+        }
+
+        // Channel subscription check
+        const isMandatoryActive = settings.get('channel_mandatory_active') !== '0';
+        if (isMandatoryActive && channels.getAll().length > 0) {
+            const subCheck = await checkUserSubscription(telegram_id);
+            if (!subCheck.allSubscribed) {
+                return res.status(403).json({
+                    error: 'Iltimos, avval rasmiy kanallarga a\'zo bo\'ling!',
+                    is_subscribed: false,
+                    missing_channels: subCheck.missing
+                });
+            }
         }
 
         let result;
@@ -212,11 +272,24 @@ app.get('/api/leaderboard', (req, res) => {
 // ----------------- WITHDRAWAL APIS -----------------
 
 // Create Withdrawal Request
-app.post('/api/withdraw/request', (req, res) => {
+app.post('/api/withdraw/request', async (req, res) => {
     try {
         const { telegram_id, package_id, pubg_id, pubg_name } = req.body;
         if (!telegram_id || !package_id || !pubg_id) {
             return res.status(400).json({ error: 'Barcha maydonlarni to\'ldiring' });
+        }
+
+        // Channel subscription check
+        const isMandatoryActive = settings.get('channel_mandatory_active') !== '0';
+        if (isMandatoryActive && channels.getAll().length > 0) {
+            const subCheck = await checkUserSubscription(telegram_id, true);
+            if (!subCheck.allSubscribed) {
+                return res.status(403).json({
+                    error: 'UC yechish uchun avval rasmiy kanallarga a\'zo bo\'lishingiz shart!',
+                    is_subscribed: false,
+                    missing_channels: subCheck.missing
+                });
+            }
         }
 
         const result = withdrawals.create(telegram_id, package_id, pubg_id, pubg_name);
@@ -385,25 +458,61 @@ app.get('/api/admin/channels', requireAdmin, (req, res) => {
 
 app.post('/api/admin/channels', requireAdmin, (req, res) => {
     const { title, channel_username, invite_link } = req.body;
-    if (!title || !channel_username || !invite_link) {
-        return res.status(400).json({ error: 'Barcha maydonlarni to\'ldiring' });
+    if (!title || !channel_username) {
+        return res.status(400).json({ error: 'Sarlavha va kanal username kiritilishi shart' });
     }
-    const id = channels.add(title, channel_username, invite_link);
+    const normalized = normalizeChannelData(channel_username, invite_link);
+    const id = channels.add(title.trim(), normalized.channel_username, normalized.invite_link);
+    clearSubCache();
     res.json({ success: true, id, channels: channels.getAll() });
 });
 
 app.put('/api/admin/channels/:id', requireAdmin, (req, res) => {
     const { title, channel_username, invite_link } = req.body;
-    if (!title || !channel_username || !invite_link) {
-        return res.status(400).json({ error: 'Barcha maydonlarni to\'ldiring' });
+    if (!title || !channel_username) {
+        return res.status(400).json({ error: 'Sarlavha va kanal username kiritilishi shart' });
     }
-    channels.update(req.params.id, title, channel_username, invite_link);
+    const normalized = normalizeChannelData(channel_username, invite_link);
+    channels.update(req.params.id, title.trim(), normalized.channel_username, normalized.invite_link);
+    clearSubCache();
     res.json({ success: true, channels: channels.getAll() });
 });
 
 app.delete('/api/admin/channels/:id', requireAdmin, (req, res) => {
     channels.delete(req.params.id);
+    clearSubCache();
     res.json({ success: true, channels: channels.getAll() });
+});
+
+// Test whether Bot is an administrator in the channel
+app.post('/api/admin/channels/test', requireAdmin, async (req, res) => {
+    try {
+        const { channel_username } = req.body;
+        if (!channel_username) {
+            return res.status(400).json({ error: 'Kanal username kiritilmadi' });
+        }
+        if (!bot || !bot.telegram) {
+            return res.status(500).json({ error: 'Bot ishga tushmagan' });
+        }
+
+        const normalized = normalizeChannelData(channel_username, '').channel_username;
+        const botInfo = await bot.telegram.getMe();
+        const member = await bot.telegram.getChatMember(normalized, botInfo.id);
+
+        const isAdmin = member && ['administrator', 'creator'].includes(member.status);
+        res.json({
+            success: true,
+            is_admin: isAdmin,
+            status: member.status,
+            channel: normalized
+        });
+    } catch (err) {
+        res.json({
+            success: false,
+            is_admin: false,
+            error: err.response?.description || err.message
+        });
+    }
 });
 
 // Tasks Admin
