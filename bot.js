@@ -2,8 +2,8 @@ const { Telegraf, Markup } = require('telegraf');
 const { users, channels, admins, settings } = require('./database');
 require('dotenv').config();
 
-const BOT_TOKEN = process.env.BOT_TOKEN || '';
-const WEBAPP_URL = process.env.WEBAPP_URL || 'http://localhost:3000';
+const BOT_TOKEN = process.env.BOT_TOKEN || '9130657045:AAE-cSQtVUWDMKzPRrHX9tg9Vil0S1XgwxI';
+const WEBAPP_URL = process.env.WEBAPP_URL || 'https://altro-sale-uc-bot.onrender.com';
 
 let bot = null;
 

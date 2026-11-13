@@ -588,8 +588,8 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Keep-Alive: Ping itself every 8 minutes to prevent Render free tier from sleeping
-const WEBAPP_URL = process.env.WEBAPP_URL || '';
+// Keep-Alive: Ping itself every 4 minutes to prevent Render free tier from sleeping
+const WEBAPP_URL = process.env.WEBAPP_URL || 'https://altro-sale-uc-bot.onrender.com';
 if (WEBAPP_URL && WEBAPP_URL.startsWith('https://')) {
     setInterval(() => {
         const pingUrl = `${WEBAPP_URL}/health`;
@@ -598,7 +598,7 @@ if (WEBAPP_URL && WEBAPP_URL.startsWith('https://')) {
         }).on('error', (e) => {
             console.warn('Keep-alive ping error:', e.message);
         });
-    }, 8 * 60 * 1000);
+    }, 4 * 60 * 1000);
     console.log(`⏱️ 24/7 Keep-alive faollashtirildi: ${WEBAPP_URL}/health`);
 }
 
