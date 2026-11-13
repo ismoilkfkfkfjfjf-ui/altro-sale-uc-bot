@@ -375,14 +375,49 @@ if (bot) {
         }
     });
 
-    // Launch bot
-    bot.launch()
-        .then(() => console.log('🤖 Telegram Bot muvaffaqiyatli ishga tushdi!'))
-        .catch(err => console.error('Telegram Bot xatoligi:', err.message));
+    // 24/7 Bulletproof Launch with Automatic Reconnect Loop
+    let isLaunching = false;
+    let isRunning = false;
+
+    async function launchBotSafe() {
+        if (isLaunching || isRunning) return;
+        isLaunching = true;
+        try {
+            console.log('🔄 Telegram Bot ishga tushirilmoqda (24/7 rejim)...');
+            await bot.launch({
+                dropPendingUpdates: true,
+                allowedUpdates: ['message', 'callback_query']
+            });
+            isRunning = true;
+            isLaunching = false;
+            console.log('✅ 🤖 Telegram Bot muvaffaqiyatli ishga tushdi va 24/7 xabarlarni kutmoqda!');
+        } catch (err) {
+            isRunning = false;
+            isLaunching = false;
+            console.error('⚠️ Telegram Bot ulanishida xatolik:', err.message || err);
+            console.log('⏳ 5 soniyadan so\'ng avtomatik qayta ulanadi...');
+            setTimeout(launchBotSafe, 5000);
+        }
+    }
+
+    launchBotSafe();
+
+    // Catch all polling and telegram errors to prevent any crash
+    bot.catch((err, ctx) => {
+        console.error(`⚠️ Telegram Bot xatoligi (${ctx?.updateType || 'polling'}):`, err.message || err);
+    });
+
+    process.on('uncaughtException', (err) => {
+        console.error('⚠️ [Xavfsizlik] Uncaught Exception ushlandi:', err.message || err);
+    });
+
+    process.on('unhandledRejection', (reason) => {
+        console.error('⚠️ [Xavfsizlik] Unhandled Rejection ushlandi:', reason);
+    });
 
     // Graceful stop
-    process.once('SIGINT', () => bot.stop('SIGINT'));
-    process.once('SIGTERM', () => bot.stop('SIGTERM'));
+    process.once('SIGINT', () => { isRunning = false; bot.stop('SIGINT'); });
+    process.once('SIGTERM', () => { isRunning = false; bot.stop('SIGTERM'); });
 }
 
 function sendWelcomeMessage(ctx) {

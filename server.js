@@ -588,19 +588,37 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Keep-Alive: Ping itself every 4 minutes to prevent Render free tier from sleeping
+// 24/7 Bulletproof Keep-Alive: Ping itself every 3 minutes (180s) to keep Render awake 24/7 permanently
 const WEBAPP_URL = process.env.WEBAPP_URL || 'https://altro-sale-uc-bot.onrender.com';
 if (WEBAPP_URL && WEBAPP_URL.startsWith('https://')) {
-    setInterval(() => {
+    const doPing = () => {
         const pingUrl = `${WEBAPP_URL}/health`;
-        https.get(pingUrl, (res) => {
-            // keep alive successful
-        }).on('error', (e) => {
-            console.warn('Keep-alive ping error:', e.message);
+        const req = https.get(pingUrl, { headers: { 'User-Agent': 'ALTRO-24-7-KeepAlive' }, timeout: 15000 }, (res) => {
+            // Keep alive OK
         });
-    }, 4 * 60 * 1000);
-    console.log(`⏱️ 24/7 Keep-alive faollashtirildi: ${WEBAPP_URL}/health`);
+        req.on('error', (e) => {
+            console.warn('⚠️ Keep-alive ping xatosi (30s dan keyin qayta uriniladi):', e.message);
+            setTimeout(doPing, 30000);
+        });
+        req.on('timeout', () => {
+            req.destroy();
+        });
+    };
+
+    // Ping every 3 minutes
+    setInterval(doPing, 3 * 60 * 1000);
+    // Initial ping after 15 seconds
+    setTimeout(doPing, 15000);
+    console.log(`⏱️ 24/7 Bulletproof Keep-alive faollashtirildi (har 3 daqiqada): ${WEBAPP_URL}/health`);
 }
+
+// Global process safety against any unhandled error
+process.on('uncaughtException', (err) => {
+    console.error('⚠️ [Server] Uncaught Exception ushlandi:', err.message || err);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('⚠️ [Server] Unhandled Rejection ushlandi:', reason);
+});
 
 // Graceful container shutdown (Save database before Render stops the container)
 process.once('SIGTERM', async () => {
