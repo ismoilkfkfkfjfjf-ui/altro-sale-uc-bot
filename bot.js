@@ -2,7 +2,11 @@ const { Telegraf, Markup } = require('telegraf');
 const { users, channels, admins, settings } = require('./database');
 require('dotenv').config();
 
-const BOT_TOKEN = process.env.BOT_TOKEN || '9130657045:AAE-cSQtVUWDMKzPRrHX9tg9Vil0S1XgwxI';
+let BOT_TOKEN = process.env.BOT_TOKEN || '';
+// Agar eski/yaroqsiz token bo'lsa yoki ko'rsatilmagan bo'lsa, to'g'ri yangi tokenni ishlatish
+if (!BOT_TOKEN || BOT_TOKEN.includes('AAHdKhDDFGO7') || BOT_TOKEN.includes('9062887504') || BOT_TOKEN.length < 30) {
+    BOT_TOKEN = '9130657045:AAE-cSQtVUWDMKzPRrHX9tg9Vil0S1XgwxI';
+}
 const WEBAPP_URL = process.env.WEBAPP_URL || 'https://altro-sale-uc-bot.onrender.com';
 
 let bot = null;
